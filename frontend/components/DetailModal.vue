@@ -35,7 +35,9 @@
               </tr>
               <tr>
                 <td>Image</td>
-                <td>{{ userDetail.image }}</td>
+                <td>
+                  <img :src="imageSrc" width="150" height="150">
+                </td>
               </tr>
               <tr>
                 <td>Effective date</td>
@@ -87,6 +89,11 @@ export default {
       sex: ['男性', '女性'],
       department: ['Web', 'iOS', 'Android'],
       type: ['社員', '派遣', 'フリーランス', 'その他']
+    }
+  },
+  computed: {
+    imageSrc () {
+      return process.env.baseUrl + '/upload/' + this.userDetail.image
     }
   }
 }

@@ -14,6 +14,7 @@ use Illuminate\Http\Request;
 */
 
 Route::apiResource('/user', 'API\UserController');
+Route::post('/user/upload-image', 'API\UserController@uploadImage');
 
 // Route::middleware('auth:api')->get('/user', function (Request $request) {
 //     return $request->user();

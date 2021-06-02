@@ -43,9 +43,9 @@
               <button type="button" class="btn btn-primary btn-sm" @click="openDetailModal(user)">
                 Detail
               </button>
-              <button type="button" class="btn btn-success btn-sm">
+              <NuxtLink :to="{ name: 'update-user-id', params: { id: user.id } }" class="btn btn-success btn-sm" role="button">
                 Update
-              </button>
+              </NuxtLink>
               <button type="button" class="btn btn-danger btn-sm" @click="openDeleteModal(user.id)">
                 Delete
               </button>
@@ -61,45 +61,51 @@
 
 <script>
 import axios from 'axios'
+import { ref } from '@vue/composition-api'
 import DetailModal from '../components/DetailModal'
 import DeleteModal from '../components/DeleteModal'
 
 export default {
   components: { DetailModal, DeleteModal },
-  data () {
-    return {
-      userId: 0,
-      userDetail: {},
-      users: []
-    }
-  },
-  head () {
-    return {
-      title: 'User Management'
-    }
-  },
-  created () {
-    axios.get('http://127.0.0.1:8000/api/user')
-      .then((response) => {
-        this.users = response.data
-      })
-  },
-  methods: {
-    openDetailModal (user) {
-      this.userDetail = user
+  setup () {
+    const userId = ref(0)
+    const userDetail = ref({})
+    const users = ref([])
+
+    const openDetailModal = (user) => {
+      userDetail.value = user
       const element = this.$refs.detailModal.$el
       $(element).modal('show')
-    },
-    openDeleteModal (id) {
-      this.userId = id
+    }
+
+    const openDeleteModal = (id) => {
+      userId.value = id
       const element = this.$refs.deleteModal.$el
       $(element).modal('show')
-    },
-    userDeleted () {
-      axios.get('http://127.0.0.1:8000/api/user')
+    }
+
+    const userDeleted = () => {
+      axios.get(`${process.env.baseUrl}/api/user`)
         .then((response) => {
-          this.users = response.data
+          users.value = response.data
         })
+    }
+
+    return {
+      userId,
+      userDetail,
+      users,
+      openDetailModal,
+      openDeleteModal,
+      userDeleted
+    }
+  },
+  async asyncData () {
+    const response = await axios.get(`${process.env.baseUrl}/api/user`)
+    return {
+      users: response.data,
+      userId: 0,
+      userDetail: {}
     }
   }
 }

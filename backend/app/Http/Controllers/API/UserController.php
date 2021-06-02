@@ -35,7 +35,7 @@ class UserController extends Controller
         }
     }
 
-    public function update(Request $request, $id)
+    public function update(StoreUserRequest $request, $id)
     {
         try {
             $user = User::findOrFail($id);
@@ -58,5 +58,12 @@ class UserController extends Controller
         catch (ModelNotFoundException $exception) {
             return response()->json(['message' => $exception->getMessage()], 400);
         }
+    }
+
+    public function uploadImage(Request $request) {
+        $fileName = time().'.'.$request->file->getClientOriginalExtension();
+        $request->file->move(public_path('upload'), $fileName);
+
+        return response()->json(['image' => $fileName]);
     }
 }

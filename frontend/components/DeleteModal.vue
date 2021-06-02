@@ -28,6 +28,10 @@
 
 <script>
 import axios from 'axios'
+let alertify
+if (process.client) {
+  alertify = require('alertifyjs')
+}
 
 export default {
   props: {
@@ -38,10 +42,11 @@ export default {
   },
   methods: {
     deleteUser () {
-      axios.delete(`http://127.0.0.1:8000/api/user/${this.userId}`)
-        .then((response) => {
+      axios.delete(`${process.env.baseUrl}/api/user/${this.userId}`)
+        .then(() => {
           $('#deleteModal').modal('hide')
           this.$emit('user-deleted')
+          alertify.success('Delete success')
         })
     }
   }
