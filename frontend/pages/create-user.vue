@@ -3,14 +3,15 @@
 </template>
 
 <script>
+import { ref } from '@vue/composition-api'
 import CreateForm from '../components/CreateForm'
 
 export default {
   components: { CreateForm },
-  data () {
-    return {
-      title: 'Create User'
-    }
+  setup () {
+    const title = ref('Create User')
+
+    return { title }
   }
 }
 </script>

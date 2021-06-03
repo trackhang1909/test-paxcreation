@@ -77,6 +77,8 @@
 </template>
 
 <script>
+import { ref, toRefs, computed } from '@vue/composition-api'
+
 export default {
   props: {
     userDetail: {
@@ -84,17 +86,17 @@ export default {
       required: true
     }
   },
-  data () {
-    return {
-      sex: ['男性', '女性'],
-      department: ['Web', 'iOS', 'Android'],
-      type: ['社員', '派遣', 'フリーランス', 'その他']
-    }
-  },
-  computed: {
-    imageSrc () {
-      return process.env.baseUrl + '/upload/' + this.userDetail.image
-    }
+  setup (props) {
+    const { userDetail } = toRefs(props)
+    const sex = ref(['男性', '女性'])
+    const department = ref(['Web', 'iOS', 'Android'])
+    const type = ref(['社員', '派遣', 'フリーランス', 'その他'])
+
+    const imageSrc = computed(() => {
+      return process.env.baseUrl + '/upload/' + userDetail.value.image
+    })
+
+    return { sex, department, type, imageSrc }
   }
 }
 </script>

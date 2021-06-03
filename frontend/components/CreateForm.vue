@@ -99,6 +99,7 @@
 
 <script>
 import axios from 'axios'
+import { reactive } from '@vue/composition-api'
 let alertify
 if (process.client) {
   alertify = require('alertifyjs')
@@ -111,26 +112,23 @@ export default {
       required: true
     }
   },
-  data () {
-    return {
-      errors: {}
-    }
-  },
-  methods: {
-    async submitForm () {
-      const fullName = this.$refs.fullName.value
-      const birthday = this.$refs.birthday.value
-      const address = this.$refs.address.value
-      const phone = this.$refs.phone.value
-      const sex = this.$refs.sex.value
-      const effectiveDate = this.$refs.effectiveDate.value
-      const expireDate = this.$refs.expireDate.value
-      const department = this.$refs.department.value
-      const skillTags = this.$refs.skillTags.value
-      const type = this.$refs.type.value
-      const note = this.$refs.note.value
+  setup (props, { refs }) {
+    let errors = reactive({})
+
+    const submitForm = async () => {
+      const fullName = refs.fullName.value
+      const birthday = refs.birthday.value
+      const address = refs.address.value
+      const phone = refs.phone.value
+      const sex = refs.sex.value
+      const effectiveDate = refs.effectiveDate.value
+      const expireDate = refs.expireDate.value
+      const department = refs.department.value
+      const skillTags = refs.skillTags.value
+      const type = refs.type.value
+      const note = refs.note.value
       let image = ''
-      const imageFile = this.$refs.image.files[0]
+      const imageFile = refs.image.files[0]
 
       const config = {
         headers: { 'content-type': 'multipart/form-data' }
@@ -165,13 +163,15 @@ export default {
           alertify.success('Create success')
         })
         .catch((e) => {
-          this.errors = e.response.data.errors
-          Object.keys(this.errors).forEach((key) => {
-            const error = this.errors[key]
+          errors = e.response.data.errors
+          Object.keys(errors).forEach((key) => {
+            const error = errors[key]
             alertify.error(error[0])
           })
         })
     }
+
+    return { errors, submitForm }
   }
 }
 </script>

@@ -4,21 +4,21 @@
 
 <script>
 import axios from 'axios'
+import { ref } from '@vue/composition-api'
 import UpdateForm from '../../components/UpdateForm'
 
 export default {
   components: { UpdateForm },
-  data () {
-    return {
-      title: 'Update User',
-      user: {}
-    }
-  },
-  created () {
-    axios.get(`${process.env.baseUrl}/api/user/${this.$route.params.id}`)
+  setup (props, { root }) {
+    const title = ref('Update User')
+    const user = ref({})
+
+    axios.get(`${process.env.baseUrl}/api/user/${root._route.params.id}`)
       .then((response) => {
-        this.user = response.data
+        user.value = response.data
       })
+
+    return { title, user }
   }
 }
 </script>

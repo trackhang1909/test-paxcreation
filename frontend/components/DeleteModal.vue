@@ -11,7 +11,7 @@
           </button>
         </div>
         <div class="modal-body">
-          Are you sure you want to delete {{ userId }}?
+          Are you sure you want to delete user {{ userId }}?
         </div>
         <div class="modal-footer">
           <button type="button" class="btn btn-secondary" data-dismiss="modal">
@@ -28,6 +28,7 @@
 
 <script>
 import axios from 'axios'
+import { toRefs } from '@vue/composition-api'
 let alertify
 if (process.client) {
   alertify = require('alertifyjs')
@@ -40,15 +41,18 @@ export default {
       required: true
     }
   },
-  methods: {
-    deleteUser () {
-      axios.delete(`${process.env.baseUrl}/api/user/${this.userId}`)
+  setup (props, { emit }) {
+    const { userId } = toRefs(props)
+    const deleteUser = () => {
+      axios.delete(`${process.env.baseUrl}/api/user/${userId.value}`)
         .then(() => {
           $('#deleteModal').modal('hide')
-          this.$emit('user-deleted')
+          emit('user-deleted')
           alertify.success('Delete success')
         })
     }
+
+    return { deleteUser }
   }
 }
 </script>

@@ -5,54 +5,38 @@
       <NuxtLink to="/create-user" class="btn btn-primary btn-create" role="button">
         Create User
       </NuxtLink>
-      <table class="table table-striped table-bordered table-hover">
-        <thead>
-          <tr>
-            <th scope="col">
-              #
-            </th>
-            <th scope="col">
-              Full Name
-            </th>
-            <th scope="col">
-              Birthday
-            </th>
-            <th scope="col">
-              Phone
-            </th>
-            <th scope="col">
-              Feature
-            </th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr v-for="(user, index) in users" :key="index">
-            <th scope="row">
-              {{ index + 1 }}
-            </th>
-            <td>
-              {{ user.full_name }}
-            </td>
-            <td>
-              {{ user.birthday }}
-            </td>
-            <td>
-              {{ user.phone }}
-            </td>
-            <td>
-              <button type="button" class="btn btn-primary btn-sm" @click="openDetailModal(user)">
-                Detail
-              </button>
-              <NuxtLink :to="{ name: 'update-user-id', params: { id: user.id } }" class="btn btn-success btn-sm" role="button">
-                Update
-              </NuxtLink>
-              <button type="button" class="btn btn-danger btn-sm" @click="openDeleteModal(user.id)">
-                Delete
-              </button>
-            </td>
-          </tr>
-        </tbody>
-      </table>
+      <b-table
+        id="my-table"
+        :fields="fields"
+        :items="users"
+        :per-page="perPage"
+        :current-page="currentPage"
+        :striped="true"
+        :bordered="true"
+        :hover="true"
+      >
+        <template #cell(index)="data">
+          {{ data.index + 1 + (perPage * currentPage - 10) }}
+        </template>
+        <template #cell(feature)="data">
+          <button type="button" class="btn btn-primary btn-sm" @click="openDetailModal(data.item)">
+            Detail
+          </button>
+          <NuxtLink :to="{ name: 'update-user-id', params: { id: data.item.id } }" class="btn btn-success btn-sm" role="button">
+            Update
+          </NuxtLink>
+          <button type="button" class="btn btn-danger btn-sm" @click="openDeleteModal(data.item.id)">
+            Delete
+          </button>
+        </template>
+      </b-table>
+      <b-pagination
+        v-model="currentPage"
+        :total-rows="rows"
+        :per-page="perPage"
+        align="center"
+        aria-controls="my-table"
+      />
       <DetailModal ref="detailModal" :user-detail="userDetail" />
       <DeleteModal ref="deleteModal" :user-id="userId" @user-deleted="userDeleted" />
     </div>
@@ -61,34 +45,53 @@
 
 <script>
 import axios from 'axios'
-import { ref } from '@vue/composition-api'
+import { ref, computed } from '@vue/composition-api'
 import DetailModal from '../components/DetailModal'
 import DeleteModal from '../components/DeleteModal'
 
+const getUserList = (users) => {
+  axios.get(`${process.env.baseUrl}/api/user`)
+    .then((response) => {
+      users.value = response.data
+    })
+}
+
 export default {
   components: { DetailModal, DeleteModal },
-  setup () {
+  setup (props, { refs }) {
+    const perPage = ref(10)
+    const currentPage = ref(1)
     const userId = ref(0)
     const userDetail = ref({})
     const users = ref([])
+    const fields = ref([
+      'index',
+      { key: 'full_name', label: 'Full Name' },
+      'birthday',
+      'phone',
+      'feature'
+    ])
+
+    getUserList(users)
+
+    const rows = computed(() => {
+      return users.value.length
+    })
 
     const openDetailModal = (user) => {
       userDetail.value = user
-      const element = this.$refs.detailModal.$el
+      const element = refs.detailModal.$el
       $(element).modal('show')
     }
 
     const openDeleteModal = (id) => {
       userId.value = id
-      const element = this.$refs.deleteModal.$el
+      const element = refs.deleteModal.$el
       $(element).modal('show')
     }
 
     const userDeleted = () => {
-      axios.get(`${process.env.baseUrl}/api/user`)
-        .then((response) => {
-          users.value = response.data
-        })
+      getUserList(users)
     }
 
     return {
@@ -97,15 +100,11 @@ export default {
       users,
       openDetailModal,
       openDeleteModal,
-      userDeleted
-    }
-  },
-  async asyncData () {
-    const response = await axios.get(`${process.env.baseUrl}/api/user`)
-    return {
-      users: response.data,
-      userId: 0,
-      userDetail: {}
+      userDeleted,
+      perPage,
+      currentPage,
+      rows,
+      fields
     }
   }
 }
