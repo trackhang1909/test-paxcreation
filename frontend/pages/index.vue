@@ -43,20 +43,21 @@
   </div>
 </template>
 
-<script>
+<script lang="ts">
 import axios from 'axios'
-import { ref, computed } from '@vue/composition-api'
-import DetailModal from '../components/DetailModal'
-import DeleteModal from '../components/DeleteModal'
+import { ref, computed, defineComponent } from '@vue/composition-api'
+import DetailModal from '../components/DetailModal.vue'
+import DeleteModal from '../components/DeleteModal.vue'
+declare var $: any
 
-const getUserList = (users) => {
+const getUserList = (users: any) => {
   axios.get(`${process.env.baseUrl}/api/user`)
     .then((response) => {
       users.value = response.data
     })
 }
 
-export default {
+export default defineComponent ({
   components: { DetailModal, DeleteModal },
   setup (props, { refs }) {
     const perPage = ref(10)
@@ -74,23 +75,23 @@ export default {
 
     getUserList(users)
 
-    const rows = computed(() => {
+    const rows = computed((): number => {
       return users.value.length
     })
 
-    const openDetailModal = (user) => {
+    const openDetailModal = (user: {}): void => {
       userDetail.value = user
-      const element = refs.detailModal.$el
+      const element = (<Vue>refs.detailModal).$el
       $(element).modal('show')
     }
 
-    const openDeleteModal = (id) => {
+    const openDeleteModal = (id: number) : void => {
       userId.value = id
-      const element = refs.deleteModal.$el
+      const element = (<Vue>refs.deleteModal).$el
       $(element).modal('show')
     }
 
-    const userDeleted = () => {
+    const userDeleted = (): void => {
       getUserList(users)
     }
 
@@ -107,7 +108,7 @@ export default {
       fields
     }
   }
-}
+})
 </script>
 
 <style scoped>

@@ -26,15 +26,16 @@
   </div>
 </template>
 
-<script>
+<script lang="ts">
 import axios from 'axios'
-import { toRefs } from '@vue/composition-api'
-let alertify
+import { toRefs, defineComponent } from '@vue/composition-api'
+declare var $: any
+let alertify: any
 if (process.client) {
   alertify = require('alertifyjs')
 }
 
-export default {
+export default defineComponent ({
   props: {
     userId: {
       type: Number,
@@ -54,5 +55,5 @@ export default {
 
     return { deleteUser }
   }
-}
+})
 </script>

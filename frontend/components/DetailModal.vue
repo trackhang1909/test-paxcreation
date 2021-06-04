@@ -76,10 +76,10 @@
   </div>
 </template>
 
-<script>
-import { ref, toRefs, computed } from '@vue/composition-api'
+<script lang="ts">
+import { ref, toRefs, computed, defineComponent } from '@vue/composition-api'
 
-export default {
+export default defineComponent ({
   props: {
     userDetail: {
       type: Object,
@@ -98,5 +98,5 @@ export default {
 
     return { sex, department, type, imageSrc }
   }
-}
+})
 </script>

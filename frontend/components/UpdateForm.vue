@@ -97,15 +97,20 @@
   </div>
 </template>
 
-<script>
+<script lang="ts">
 import axios from 'axios'
-import { reactive } from '@vue/composition-api'
-let alertify
+import HTMLInputElement from 'bootstrap-vue'
+import { reactive, defineComponent, ref } from '@vue/composition-api'
+let alertify: any
 if (process.client) {
   alertify = require('alertifyjs')
 }
 
-export default {
+const getElementValue = (input: any): any => {
+  return input.value.value
+}
+
+export default defineComponent ({
   props: {
     title: {
       type: String,
@@ -116,68 +121,83 @@ export default {
       required: true
     }
   },
-  setup (props, { refs, root }) {
+  setup (props, { root }) {
     let errors = reactive({})
+    const fullName = ref(HTMLInputElement)
+    const birthday = ref(HTMLInputElement)
+    const address = ref(HTMLInputElement)
+    const phone = ref(HTMLInputElement)
+    const sex = ref(HTMLInputElement)
+    const effectiveDate = ref(HTMLInputElement)
+    const expireDate = ref(HTMLInputElement)
+    const department = ref(HTMLInputElement)
+    const skillTags = ref(HTMLInputElement)
+    const type = ref(HTMLInputElement)
+    const note = ref(HTMLInputElement)
+    const image = ref(HTMLInputElement)
 
-    const submitForm = async () => {
-      const fullName = refs.fullName.value
-      const birthday = refs.birthday.value
-      const address = refs.address.value
-      const phone = refs.phone.value
-      const sex = refs.sex.value
-      const effectiveDate = refs.effectiveDate.value
-      const expireDate = refs.expireDate.value
-      const department = refs.department.value
-      const skillTags = refs.skillTags.value
-      const type = refs.type.value
-      const note = refs.note.value
-      let image = ''
-      const imageFile = refs.image.files[0]
+    const submitForm = async (): Promise<void> => {
+      let imageSrc = ''
 
       const config = {
         headers: { 'content-type': 'multipart/form-data' }
       }
 
       const formData = new FormData()
-      formData.append('file', imageFile)
+      formData.append('file', image.value.files[0])
 
       await axios.post(`${process.env.baseUrl}/api/user/upload-image`, formData, config)
-        .then((response) => {
-          image = response.data.image
+        .then((response): void => {
+          imageSrc = response.data.image
         })
-        .catch((error) => {
+        .catch((error): void => {
           console.log(error)
         })
 
-      axios.put(`${process.env.baseUrl}/api/user/${root._route.params.id}`, {
-        full_name: fullName,
-        birthday,
-        address,
-        phone,
-        sex,
-        effective_date: effectiveDate,
-        expire_date: expireDate,
-        department,
-        skill_tags: skillTags,
-        type,
-        note,
-        image
+      axios.put(`${process.env.baseUrl}/api/user/${(<any>root)._route.params.id}`, {
+        full_name: getElementValue(fullName),
+        birthday: getElementValue(birthday),
+        address: getElementValue(address),
+        phone: getElementValue(phone),
+        sex: getElementValue(sex),
+        effective_date: getElementValue(effectiveDate),
+        expire_date: getElementValue(expireDate),
+        department: getElementValue(department),
+        skill_tags: getElementValue(skillTags),
+        type: getElementValue(type),
+        note: getElementValue(note),
+        image: imageSrc
       })
         .then(() => {
-          alertify.success('Update success')
+          alertify.success('Create success')
         })
         .catch((e) => {
           errors = e.response.data.errors
-          Object.keys(errors).forEach((key) => {
-            const error = errors[key]
-            alertify.error(error[0])
-          })
+
+          for (const [key, value] of Object.entries(errors)) {
+            alertify.error(`${value}`)
+          }
         })
     }
 
-    return { errors, submitForm }
+    return {
+      errors,
+      submitForm,
+      fullName,
+      birthday,
+      address,
+      phone,
+      sex,
+      effectiveDate,
+      expireDate,
+      department,
+      skillTags,
+      type,
+      note,
+      image
+    }
   }
-}
+})
 </script>
 
 <style scoped>

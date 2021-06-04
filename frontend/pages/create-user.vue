@@ -2,16 +2,16 @@
   <CreateForm :title="title" />
 </template>
 
-<script>
-import { ref } from '@vue/composition-api'
-import CreateForm from '../components/CreateForm'
+<script lang="ts">
+import { ref, defineComponent } from '@vue/composition-api'
+import CreateForm from '../components/CreateForm.vue'
 
-export default {
+export default defineComponent ({
   components: { CreateForm },
   setup () {
     const title = ref('Create User')
 
     return { title }
   }
-}
+})
 </script>
