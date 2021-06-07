@@ -48,7 +48,7 @@ export default defineComponent ({
       axios.delete(`${process.env.baseUrl}/api/user/${userId.value}`)
         .then(() => {
           $('#deleteModal').modal('hide')
-          emit('user-deleted')
+          emit('refresh-user-list')
           alertify.success('Delete success')
         })
     }

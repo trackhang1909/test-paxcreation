@@ -2,9 +2,10 @@
   <div class="container">
     <div class="container-fluid">
       <h2>User Management</h2>
-      <NuxtLink to="/create-user" class="btn btn-primary btn-create" role="button">
+      <button type="button" class="btn btn-primary btn-create" @click="openCreateModal">
         Create User
-      </NuxtLink>
+      </button>
+      <CreateModal ref="createModal" @refresh-user-list="refreshUserList" />
       <b-table
         id="my-table"
         :fields="fields"
@@ -22,9 +23,9 @@
           <button type="button" class="btn btn-primary btn-sm" @click="openDetailModal(data.item)">
             Detail
           </button>
-          <NuxtLink :to="{ name: 'update-user-id', params: { id: data.item.id } }" class="btn btn-success btn-sm" role="button">
+          <button type="button" class="btn btn-success btn-sm" @click="openUpdateModal(data.item)">
             Update
-          </NuxtLink>
+          </button>
           <button type="button" class="btn btn-danger btn-sm" @click="openDeleteModal(data.item.id)">
             Delete
           </button>
@@ -38,7 +39,8 @@
         aria-controls="my-table"
       />
       <DetailModal ref="detailModal" :user-detail="userDetail" />
-      <DeleteModal ref="deleteModal" :user-id="userId" @user-deleted="userDeleted" />
+      <UpdateModal ref="updateModal" :user="userDetail" @refresh-user-list="refreshUserList" />
+      <DeleteModal ref="deleteModal" :user-id="userId" @refresh-user-list="refreshUserList" />
     </div>
   </div>
 </template>
@@ -48,6 +50,8 @@ import axios from 'axios'
 import { ref, computed, defineComponent } from '@vue/composition-api'
 import DetailModal from '../components/DetailModal.vue'
 import DeleteModal from '../components/DeleteModal.vue'
+import CreateModal from '../components/CreateModal.vue'
+import UpdateModal from '../components/UpdateModal.vue'
 declare var $: any
 
 const getUserList = (users: any) => {
@@ -58,8 +62,8 @@ const getUserList = (users: any) => {
 }
 
 export default defineComponent ({
-  components: { DetailModal, DeleteModal },
-  setup (props, { refs }) {
+  components: { DetailModal, DeleteModal, CreateModal, UpdateModal },
+  setup (props, { root, refs }) {
     const perPage = ref(10)
     const currentPage = ref(1)
     const userId = ref(0)
@@ -77,11 +81,23 @@ export default defineComponent ({
 
     const rows = computed((): number => {
       return users.value.length
+      // return root.$store.getters.users.length
     })
+
+    const openCreateModal = (): void => {
+      const element = (<Vue>refs.createModal).$el
+      $(element).modal('show')
+    }
 
     const openDetailModal = (user: {}): void => {
       userDetail.value = user
       const element = (<Vue>refs.detailModal).$el
+      $(element).modal('show')
+    }
+
+    const openUpdateModal = (user: {}): void => {
+      userDetail.value = user
+      const element = (<Vue>refs.updateModal).$el
       $(element).modal('show')
     }
 
@@ -91,7 +107,7 @@ export default defineComponent ({
       $(element).modal('show')
     }
 
-    const userDeleted = (): void => {
+    const refreshUserList = (): void => {
       getUserList(users)
     }
 
@@ -99,9 +115,11 @@ export default defineComponent ({
       userId,
       userDetail,
       users,
+      openCreateModal,
       openDetailModal,
+      openUpdateModal,
       openDeleteModal,
-      userDeleted,
+      refreshUserList,
       perPage,
       currentPage,
       rows,
